@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fubaorobot.letsdo.mapper.DictMapper">
+
+    <resultMap type="com.fubaorobot.letsdo.bean.dict.DictBO" id="DictMap">
+        <result property="id" column="id" jdbcType="INTEGER"/>
+        <result property="dictType" column="dict_type" jdbcType="VARCHAR"/>
+        <result property="typeCode" column="type_code" jdbcType="VARCHAR"/>
+        <result property="dictValue" column="dict_value" jdbcType="VARCHAR"/>
+        <result property="dictCode" column="dict_code" jdbcType="VARCHAR"/>
+        <result property="state" column="state" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <!--查询单个-->
+    <select id="selectDictById" resultMap="DictMap">
+        select id,
+               dict_type,
+               type_code,
+               dict_value,
+               dict_code,
+               state
+        from config_dict
+        where id = #{id}
+    </select>
+
+    <!--通过实体作为筛选条件查询-->
+    <select id="selectDictList" resultMap="DictMap">
+        select
+        id, dict_type, type_code, dict_value, dict_code, state
+        from config_dict
+        <where>
+            <if test="id != null">
+                and id = #{id}
+            </if>
+            <if test="dictType != null and dictType != ''">
+                and dict_type = #{dictType}
+            </if>
+            <if test="typeCode != null and typeCode != ''">
+                and type_code = #{typeCode}
+            </if>
+            <if test="dictValue != null and dictValue != ''">
+                and dict_value = #{dictValue}
+            </if>
+            <if test="dictCode != null and dictCode != ''">
+                and dict_code = #{dictCode}
+            </if>
+            <if test="state != null">
+                and state = #{state}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectDictByTypeCode" resultType="com.fubaorobot.letsdo.bean.dict.DictReq">
+        select dict_value as dictValue,
+               dict_code as dictCode
+        from config_dict
+        where type_code = #{typeCode}
+            and state = 1
+    </select>
+
+    <!--新增所有列-->
+    <insert id="insertDict" keyProperty="id" useGeneratedKeys="true">
+        insert into config_dict(dict_type, type_code, dict_value, dict_code)
+        values (#{dictType}, #{typeCode}, #{dictValue}, #{dictCode})
+    </insert>
+
+    <insert id="insertDictBatch" keyProperty="id" useGeneratedKeys="true">
+        insert into config_dict(dict_type, type_code, dict_value, dict_code, state)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+            (#{entity.dictType}, #{entity.typeCode}, #{entity.dictValue}, #{entity.dictCode}, #{entity.state})
+        </foreach>
+    </insert>
+
+    <insert id="insertOrUpdateBatch" keyProperty="id" useGeneratedKeys="true">
+        insert into config_dict(dict_type, type_code, dict_value, dict_code, state)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+            (#{entity.dictType}, #{entity.typeCode}, #{entity.dictValue}, #{entity.dictCode}, #{entity.state})
+        </foreach>
+        on duplicate key update
+        dict_type = values(dict_type) , type_code = values(type_code) , dict_value = values(dict_value) , dict_code =
+        values(dict_code) , state = values(state)
+    </insert>
+
+    <!--通过主键修改数据-->
+    <update id="updateDict">
+        update config_dict
+        <set>
+            <if test="dictType != null and dictType != ''">
+                dict_type = #{dictType},
+            </if>
+            <if test="typeCode != null and typeCode != ''">
+                type_code = #{typeCode},
+            </if>
+            <if test="dictValue != null and dictValue != ''">
+                dict_value = #{dictValue},
+            </if>
+            <if test="dictCode != null and dictCode != ''">
+                dict_code = #{dictCode},
+            </if>
+            <if test="state != null">
+                state = #{state},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <!--通过主键删除-->
+    <delete id="deleteDictById">
+        delete
+        from config_dict
+        where id = #{id}
+    </delete>
+
+</mapper>
+
